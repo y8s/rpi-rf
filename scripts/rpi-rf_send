@@ -4,6 +4,7 @@ import argparse
 import logging
 
 from rpi_rf import RFDevice
+from time import sleep
 
 logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
                     format='%(asctime)-15s - [%(levelname)s] %(module)s: %(message)s',)
@@ -17,6 +18,8 @@ parser.add_argument('-p', dest='pulselength', type=int, default=None,
                     help="Pulselength (Default: 350)")
 parser.add_argument('-t', dest='protocol', type=int, default=None,
                     help="Protocol (Default: 1)")
+parser.add_argument('-r', dest='repeats', type=int, default=3,
+                    help="Number of Repeats (Default: 3)")
 args = parser.parse_args()
 
 rfdevice = RFDevice(args.gpio)
@@ -30,9 +33,17 @@ if args.pulselength:
     pulselength = args.pulselength
 else:
     pulselength = "default"
+if args.repeats: 
+    repeats = arg.repeats
+else:
+    repeats = 3
 logging.info(str(args.code) +
-             " [protocol: " + str(protocol) +
-             ", pulselength: " + str(pulselength) + "]")
+             " [protocol:"+ str(protocol)+
+             ", pulselength:" + str(pulselength)+
+             ", repeats:" + str(repeats) + "]")
 
-rfdevice.tx_code(args.code, args.protocol, args.pulselength)
+for repeat in range(0, repeats):
+    rfdevice.tx_code(args.code, args.protocol, args.pulselength)
+    sleep(0.005)
+
 rfdevice.cleanup()
